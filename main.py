@@ -58,7 +58,7 @@ def markdownToHtml(filePath):
 
 # 开始转换文件
 def parseFile(filePath):
-    print(filePath + '\n')
+    print(filePath + '\t...\n')
     # md -> html
     if filePath.endswith('.md'):
         # 生成html文件
@@ -70,6 +70,7 @@ def parseFile(filePath):
         destPath = os.path.join(outDir, relativePath)
         shutil.copy(filePath, destPath)
     # 制作epub
+    # todo
     pass
 
 
@@ -97,4 +98,6 @@ if __name__ == '__main__':
         exit(233)
     inDir = args[1]
     outDir = args[2]
+    print('开始啦!\n')
     entry(inDir)
+    print('搞定!\n')
