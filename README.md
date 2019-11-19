@@ -1,1 +1,3 @@
 # markdown2epub
+
+将指定目录下的所有markdown文件转换成html文件并生成epub电子书
