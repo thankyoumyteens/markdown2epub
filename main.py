@@ -17,6 +17,8 @@ def confirmDestDir(fileName):
             os.makedirs(fileDestDir)
 
 
+# 将- <a href="study/server/index.md">Linux服务器</a>
+# 转换成 - <a href="study/server/index.html">Linux服务器</a>
 def replaceMdToHtml(matches):
     v1 = matches.group('v1')
     v2 = matches.group('v2')
@@ -24,6 +26,7 @@ def replaceMdToHtml(matches):
     return v1 + '.html' + v3
 
 
+# markdown文件转换成html文件
 def markdownToHtml(filePath):
     # 读取 markdown 文本
     input_file = codecs.open(filePath, mode="r", encoding="utf-8")
@@ -33,9 +36,8 @@ def markdownToHtml(filePath):
     regexStr = '(?P<v1>- <a href=".*)(?P<v2>.md)(?P<v3>">.*</a>)'
     # pattern1 = re.compile(regexStr)
     # tmp = pattern1.findall(text)
-
+    # 替换内容
     text = re.sub(regexStr, replaceMdToHtml, text)
-    # text = text.replace(regexStr, '.html')
     # 启用扩展来转换表格和代码块
     ext = ['markdown.extensions.extra',
            'markdown.extensions.codehilite',
@@ -54,8 +56,10 @@ def markdownToHtml(filePath):
     output_file.write(html)
 
 
+# 开始转换文件
 def parseFile(filePath):
     print(filePath + '\n')
+    # md -> html
     if filePath.endswith('.md'):
         # 生成html文件
         markdownToHtml(filePath)
@@ -65,8 +69,11 @@ def parseFile(filePath):
         confirmDestDir(relativePath)
         destPath = os.path.join(outDir, relativePath)
         shutil.copy(filePath, destPath)
+    # 制作epub
+    pass
 
 
+# 遍历所有文件进行转换
 def entry(fullPath):
     simplePath = fullPath[fullPath.rindex(os.sep) + 1:]
     if simplePath.startswith('.'):
