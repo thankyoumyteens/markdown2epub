@@ -40,7 +40,7 @@
     <item id="id-{{ page.page_id }}" href="page{{ page.page_id }}.xhtml" media-type="application/xhtml+xml"/>
     {%- endfor %}
     {% for image in images %}
-    <item id="id-im{{ image.image_id }}" href="images/{{ image.name }}" media-type="{{ image.name|mediatype }}"/>
+    <item id="id-im{{ image.image_id }}" href="img/{{ image.name }}" media-type="{{ image.name|mediatype }}"/>
     {% endfor %}
     {%- for font in fonts %}
     <item id="id-{{ font }}" href="fonts/{{ font }}" media-type="{{ font|fonttype }}"/>

@@ -23,7 +23,10 @@ def makeContent(curPath, book, node):
                 chapter = subPath[:subPath.rindex(os.sep)]
             else:
                 chapter = subPath
-            n = book.add_page(chapter, '<h1>' + chapter + '</h1>', parent=node)
+            if 'img' not in subPath:
+                n = book.add_page(chapter, '<h1>' + chapter + '</h1>', parent=node)
+            else:
+                n = None
             makeContent(os.path.join(curPath, subPath), book, n)
     if os.path.isfile(curPath):
         if curPath[curPath.rindex('.') + 1:] == 'html':
@@ -36,6 +39,13 @@ def makeContent(curPath, book, node):
 
 
 def makeEPub(rootDir):
+    epubDir = os.path.join(outDir, 'epub')
+    if not os.path.exists(epubDir):
+        os.makedirs(epubDir)
+    epubFile = os.path.join(epubDir, epubTitle + '.epub')
+    # 删除旧文件
+    if os.path.exists(epubFile):
+        os.remove(epubFile)
     book = mkepub.Book(title=epubTitle, author=epubAuthor)
     # 封面
     with open('cover.jpg', 'rb') as file:
@@ -46,12 +56,6 @@ def makeEPub(rootDir):
     # 内容
     makeContent(rootDir, book, None)
     # 写入文件
-    epubDir = os.path.join(outDir, 'epub')
-    if not os.path.exists(epubDir):
-        os.makedirs(epubDir)
-    epubFile = os.path.join(epubDir, epubTitle + '.epub')
-    if os.path.exists(epubFile):
-        os.remove(epubFile)
     book.save(epubFile)
 
 

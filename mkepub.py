@@ -26,7 +26,7 @@ import zipfile
 
 def mediatype(name):
     ext = name.split('.')[-1].lower()
-    if ext not in ('png', 'jpg', 'jpeg', 'gif', 'svg'):
+    if ext not in ('png', 'jpg', 'jpeg', 'gif', 'svg', 'epub'):
         raise ValueError('Image format "{}" is not supported.'.format(ext))
     if ext == 'jpg':
         ext = 'jpeg'
@@ -76,7 +76,7 @@ class Book:
 
         self.path = pathlib.Path(self.tempdir.name).resolve()
         for dirname in [
-                'EPUB', 'META-INF', 'EPUB/images', 'EPUB/css', 'EPUB/covers']:
+                'EPUB', 'META-INF', 'EPUB/img', 'EPUB/css', 'EPUB/covers']:
             (self.path / dirname).mkdir()
 
         self.set_stylesheet('')
@@ -101,7 +101,7 @@ class Book:
     def add_image(self, name, data):
         """Add image file."""
         self.images.append(Image(next(self._image_id), name))
-        self._add_file(pathlib.Path('images') / name, data)
+        self._add_file(pathlib.Path('img') / name, data)
 
     def add_font(self, name, data):
         """Add font file."""
