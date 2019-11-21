@@ -4,9 +4,55 @@ import os
 import sys
 import shutil
 import re
+import mkepub
 
+# 源文件夹
 inDir = ''
+# 输出文件夹
 outDir = ''
+epubTitle = '标题'
+epubAuthor = '作者'
+
+
+def makeContent(curPath, book, node):
+    if os.path.isdir(curPath):
+        # 处理文件夹
+        dirList = os.listdir(curPath)
+        for subPath in dirList:
+            if os.sep in subPath:
+                chapter = subPath[:subPath.rindex(os.sep)]
+            else:
+                chapter = subPath
+            n = book.add_page(chapter, '<h1>' + chapter + '</h1>', parent=node)
+            makeContent(os.path.join(curPath, subPath), book, n)
+    if os.path.isfile(curPath):
+        if curPath[curPath.rindex('.') + 1:] == 'html':
+            with open(curPath, 'r', encoding='utf-8') as file:
+                title = curPath[curPath.rindex(os.sep) + 1:]
+                book.add_page(title, file.read(), parent=node)
+        else:
+            with open(curPath, 'rb') as file:
+                book.add_image(curPath[curPath.rindex(os.sep) + 1:], file.read())
+
+
+def makeEPub(rootDir):
+    book = mkepub.Book(title=epubTitle, author=epubAuthor)
+    # 封面
+    with open('cover.jpg', 'rb') as file:
+        book.set_cover(file.read())
+    # css
+    with open('style.css') as file:
+        book.set_stylesheet(file.read())
+    # 内容
+    makeContent(rootDir, book, None)
+    # 写入文件
+    epubDir = os.path.join(outDir, 'epub')
+    if not os.path.exists(epubDir):
+        os.makedirs(epubDir)
+    epubFile = os.path.join(epubDir, epubTitle + '.epub')
+    if os.path.exists(epubFile):
+        os.remove(epubFile)
+    book.save(epubFile)
 
 
 # 确保输出路径存在
@@ -31,6 +77,7 @@ def markdownToHtml(filePath):
     # 读取 markdown 文本
     input_file = codecs.open(filePath, mode="r", encoding="utf-8")
     text = input_file.read()
+    input_file.close()
     # 修正md文件中的a标签指向
     # ?P<v1>指定组名
     regexStr = '(?P<v1>- <a href=".*)(?P<v2>.md)(?P<v3>">.*</a>)'
@@ -54,12 +101,13 @@ def markdownToHtml(filePath):
     # 保存为文件
     output_file = codecs.open(htmlFile, mode="w", encoding="utf-8")
     output_file.write(html)
+    output_file.close()
 
 
 # 开始转换文件
+
 def parseFile(filePath):
     print(filePath + '\t...\n')
-    # md -> html
     if filePath.endswith('.md'):
         # 生成html文件
         markdownToHtml(filePath)
@@ -69,13 +117,10 @@ def parseFile(filePath):
         confirmDestDir(relativePath)
         destPath = os.path.join(outDir, relativePath)
         shutil.copy(filePath, destPath)
-    # 制作epub
-    # todo
-    pass
 
 
 # 遍历所有文件进行转换
-def entry(fullPath):
+def makeHtml(fullPath):
     simplePath = fullPath[fullPath.rindex(os.sep) + 1:]
     if simplePath.startswith('.'):
         # 跳过以.开头的文件或文件夹
@@ -84,20 +129,37 @@ def entry(fullPath):
         # 处理文件夹
         dirList = os.listdir(fullPath)
         for subPath in dirList:
-            # 遍历出所有文件
-            entry(os.path.join(fullPath, subPath))
+            # 遍历出所有文件, 注意传入完整路径, 否则判断不了
+            makeHtml(os.path.join(fullPath, subPath))
     if os.path.isfile(fullPath):
         # 处理文件
         parseFile(fullPath)
 
 
+def entry(rootDir):
+    """
+    程序入口
+    :param rootDir: 根目录
+    :return: void
+    """
+    print('开始生成html文件\n')
+    makeHtml(rootDir)
+    print('生成html文件完成\n')
+    print('开始生成epub\n')
+    makeEPub(outDir)
+    print('生成epub完成\n')
+
+
 if __name__ == '__main__':
     args = sys.argv
-    if not len(args) == 3:
+    if len(args) < 3:
         print('输入文件路径啦!混蛋')
         exit(233)
     inDir = args[1]
     outDir = args[2]
-    print('开始啦!\n')
+    if len(args) == 4:
+        epubTitle = args[3]
+    if len(args) == 5:
+        epubTitle = args[3]
+        epubAuthor = args[4]
     entry(inDir)
-    print('搞定!\n')
