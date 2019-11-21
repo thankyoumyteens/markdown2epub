@@ -26,8 +26,9 @@ import zipfile
 
 def mediatype(name):
     ext = name.split('.')[-1].lower()
-    if ext not in ('png', 'jpg', 'jpeg', 'gif', 'svg', 'epub'):
-        raise ValueError('Image format "{}" is not supported.'.format(ext))
+    # todo
+    # if ext not in ('png', 'jpg', 'jpeg', 'gif', 'svg', 'epub'):
+    #     raise ValueError('Image format "{}" is not supported.'.format(ext))
     if ext == 'jpg':
         ext = 'jpeg'
     elif ext == 'svg':

@@ -14,24 +14,32 @@ epubTitle = '标题'
 epubAuthor = '作者'
 
 
+# todo bug to fix
 def makeContent(curPath, book, node):
+    """
+    生成epub的电子书内容
+    :param curPath: 当前路径
+    :param book: epub对象
+    :param node: 上一级节点
+    :return:
+    """
     if os.path.isdir(curPath):
+        if os.sep in curPath:
+            chapter = curPath[curPath.rindex(os.sep) + 1:]
+        else:
+            chapter = curPath
+        if 'img' not in curPath and 'epub' not in curPath:
+            n = book.add_page(chapter, '<h1>' + chapter + '</h1>', parent=node)
+        else:
+            n = None
         # 处理文件夹
         dirList = os.listdir(curPath)
         for subPath in dirList:
-            if os.sep in subPath:
-                chapter = subPath[:subPath.rindex(os.sep)]
-            else:
-                chapter = subPath
-            if 'img' not in subPath:
-                n = book.add_page(chapter, '<h1>' + chapter + '</h1>', parent=node)
-            else:
-                n = None
             makeContent(os.path.join(curPath, subPath), book, n)
     if os.path.isfile(curPath):
         if curPath[curPath.rindex('.') + 1:] == 'html':
             with open(curPath, 'r', encoding='utf-8') as file:
-                title = curPath[curPath.rindex(os.sep) + 1:]
+                title = curPath[curPath.rindex(os.sep) + 1:curPath.rindex('.')]
                 book.add_page(title, file.read(), parent=node)
         else:
             with open(curPath, 'rb') as file:
@@ -39,6 +47,11 @@ def makeContent(curPath, book, node):
 
 
 def makeEPub(rootDir):
+    """
+    制作epub电子书
+    :param rootDir: html文件的根目录
+    :return:
+    """
     epubDir = os.path.join(outDir, 'epub')
     if not os.path.exists(epubDir):
         os.makedirs(epubDir)
@@ -59,25 +72,37 @@ def makeEPub(rootDir):
     book.save(epubFile)
 
 
-# 确保输出路径存在
 def confirmDestDir(fileName):
+    """
+    确保输出路径存在
+    :param fileName:
+    :return:
+    """
     if os.sep in fileName:
         fileDestDir = os.path.join(outDir, fileName[:fileName.rindex(os.sep)])
         if not os.path.exists(fileDestDir):
             os.makedirs(fileDestDir)
 
 
-# 将- <a href="study/server/index.md">Linux服务器</a>
-# 转换成 - <a href="study/server/index.html">Linux服务器</a>
 def replaceMdToHtml(matches):
+    """
+    将- <a href="study/server/index.md">Linux服务器</a>
+    转换成 - <a href="study/server/index.html">Linux服务器</a>
+    :param matches:
+    :return:
+    """
     v1 = matches.group('v1')
     v2 = matches.group('v2')
     v3 = matches.group('v3')
     return v1 + '.html' + v3
 
 
-# markdown文件转换成html文件
 def markdownToHtml(filePath):
+    """
+    markdown文件转换成html文件
+    :param filePath:
+    :return:
+    """
     # 读取 markdown 文本
     input_file = codecs.open(filePath, mode="r", encoding="utf-8")
     text = input_file.read()
@@ -108,9 +133,12 @@ def markdownToHtml(filePath):
     output_file.close()
 
 
-# 开始转换文件
-
 def parseFile(filePath):
+    """
+    开始转换文件
+    :param filePath:
+    :return:
+    """
     print(filePath + '\t...\n')
     if filePath.endswith('.md'):
         # 生成html文件
@@ -123,8 +151,12 @@ def parseFile(filePath):
         shutil.copy(filePath, destPath)
 
 
-# 遍历所有文件进行转换
 def makeHtml(fullPath):
+    """
+    遍历所有文件进行转换
+    :param fullPath:
+    :return:
+    """
     simplePath = fullPath[fullPath.rindex(os.sep) + 1:]
     if simplePath.startswith('.'):
         # 跳过以.开头的文件或文件夹
