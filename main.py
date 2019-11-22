@@ -89,7 +89,7 @@ def replaceMdToHtml(matches):
     :return:
     """
     v1 = matches.group('v1')
-    v2 = matches.group('v2')
+    # v2 = matches.group('v2')
     v3 = matches.group('v3')
     return v1 + '.html' + v3
 
@@ -134,7 +134,7 @@ def parseFile(filePath):
     :param filePath:
     :return:
     """
-    print(filePath + '\t...\n')
+    print(filePath + '\n')
     if filePath.endswith('.md'):
         # 生成html文件
         markdownToHtml(filePath)
