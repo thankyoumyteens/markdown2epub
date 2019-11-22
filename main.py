@@ -56,9 +56,6 @@ def makeEPub(rootDir):
     if not os.path.exists(epubDir):
         os.makedirs(epubDir)
     epubFile = os.path.join(epubDir, epubTitle + '.epub')
-    # 删除旧文件
-    if os.path.exists(epubFile):
-        os.remove(epubFile)
     book = mkepub.Book(title=epubTitle, author=epubAuthor)
     # 封面
     with open('cover.jpg', 'rb') as file:
@@ -110,8 +107,6 @@ def markdownToHtml(filePath):
     # 修正md文件中的a标签指向
     # ?P<v1>指定组名
     regexStr = '(?P<v1>- <a href=".*)(?P<v2>.md)(?P<v3>">.*</a>)'
-    # pattern1 = re.compile(regexStr)
-    # tmp = pattern1.findall(text)
     # 替换内容
     text = re.sub(regexStr, replaceMdToHtml, text)
     # 启用扩展来转换表格和代码块
@@ -178,6 +173,10 @@ def entry(rootDir):
     :param rootDir: 根目录
     :return: void
     """
+    # 删除旧文件
+    if os.path.exists(outDir):
+        shutil.rmtree(outDir)
+    os.makedirs(outDir)
     print('开始生成html文件\n')
     makeHtml(rootDir)
     print('生成html文件完成\n')
